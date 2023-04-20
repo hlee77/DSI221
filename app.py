@@ -1,51 +1,116 @@
+Skip to content
+ Enterprise
+Search or jump to…
+Pull requests
+Issues
+Explore
+ 
+@hlee 
+DSIR-EC-221
+/
+7.05-lesson-streamlit
+Private
+0
+0
+9
+Code
+Issues
+Pull requests
+Projects
+Wiki
+Security
+Insights
+7.05-lesson-streamlit/apps/2example-iris/app.py
+@dpfay
+dpfay second example
+Latest commit 8cad481 13 days ago
+ History
+ 1 contributor
+77 lines (53 sloc)  1.77 KB
+   
 import streamlit as st
-import pandas as pd
+import plotly.express as px
+import numpy as np
 import pickle
+from predict import predict_flower
+import time
 
 
+st.title("Some Extras to Show!")
+st.header("1️⃣ Let's First Take a Look at Checkboxes")
 
-st.title("Austen or Poe?")
-st.subheader("Who do you write like?")
+df_iris = px.data.iris()
 
-page = st.sidebar.selectbox(
-    'Page',
-    ('About', 'Dallae', 'EDA', 'Predicting')
+show_eda = st.checkbox("Do you want to see some EDA?")
+
+if show_eda:  # evaluates to true if checked
+    hist_sepal = px.histogram(df_iris, x='sepal_length')
+    hist_sepal 
+
+show_df = st.checkbox("Do you want to see the data?")
+
+if show_df:  # evaluates to true if checked
+    df_iris
+
+st.header("2️⃣ Using User Input to Make Predictions")
+
+
+s_l = st.number_input("Sepal Length in cm", 0, 100)
+s_w = st.number_input("Sepal Width in cm", 0, 100)
+p_l = st.number_input("Petal Length in cm", 0, 100)
+p_w = st.number_input("Petal Width in cm", 0, 100)
+
+user_input = np.array([s_l, s_w, p_l, p_w])
+
+# load model
+with open('models/saved-iris-model.pkl', 'rb') as f:
+    classifier = pickle.load(f)
+
+# make prediction
+
+if st.button('Make prediction'):
+    with st.spinner('Predicting...'):
+        time.sleep(5)
+        prediction = predict_flower(classifier, user_input)
+
+    st.text(f"The model predicts: {prediction[0].title()}")
+
+st.header("3️⃣ Adding Some Columns!")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.header("A cat")
+    st.image("https://static.streamlit.io/examples/cat.jpg")
+
+with col2:
+    st.header("A dog")
+    st.image("https://static.streamlit.io/examples/dog.jpg")
+
+with col3:
+        st.header("An owl")
+        st.image("https://static.streamlit.io/examples/owl.jpg")
+
+
+st.header("4️⃣ Lastly, a Pretty Cool Choropleth")
+
+df = px.data.gapminder()
+
+fig = px.choropleth(
+    df,
+    locations="iso_alpha",
+    color="lifeExp",
+    hover_name="country",
+    animation_frame="year",  # animation
+    range_color=[20, 80],
 )
-
-if page == 'About':
-    st.subheader('About this project')
-    st.write("""This is a streamlit app.
-
-It will tell you who you write like, etc.""")
-
-elif page =='Dallae':
-    st.subheader("Dallae's Daily Schedule")
-    st.title('What is Dallae going to do today?')
-    model_1, model_2 = st.tabs(["Food", "Walk"])
-    with model_1:
-        st.write("Hello Dallae, it's time to eat.")
-        number = st.slider("How many times do you wanna eat? Choose a number", 0,3)
-
-        st.metric("Number of times to eat", number)
-
-
-    with model_2:
-        st.write("Hello Dallae, it's time to walk.")
-        number = st.slider("How long do you wanna walk?", 30,100)
-
-        st.metric("Walking minutes", number)
-
-elif page =='EDA':
-    st.subheader('Exploration Nation!')
-
-elif page == 'Predicting':
-    st.title('Who do you write like?')
-    model_1, model_2 = st.tabs(["Model 1", "Model 2"])
-    with model_1:
-        st.write("Hello Model 1!")
-    with model_2:
-        st.write("Hello Model 2!")
-        number = st.slider("Choose a number", 0,100)
-
-        st.metric("My number", number)
-
+fig
+© 2023 GitHub, Inc.
+Help
+Support
+API
+Training
+Blog
+About
+GitHub Enterprise Server 3.3.8
+Loading complete
